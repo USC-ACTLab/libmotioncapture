@@ -1,0 +1,3 @@
+[submodule "externalDependencies/vicon_sdk"]
+	path = externalDependencies/vicon_sdk
+	url = https://github.com/USC-ACTLab/vicon_sdk
