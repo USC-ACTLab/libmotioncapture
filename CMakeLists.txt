@@ -25,6 +25,7 @@ catkin_package(
 
 find_package(PCL REQUIRED)
 set(VICON_SDK_DIR externalDependencies/vicon_sdk/)
+set(NATNET_DIR externalDependencies/NatNetLinux/)
 
 ###########
 ## Build ##
@@ -35,6 +36,7 @@ include_directories(
   include
   ${PCL_INCLUDE_DIRS}
   ${VICON_SDK_DIR}/include
+  ${NATNET_DIR}/include
 )
 
 link_directories(
@@ -45,6 +47,7 @@ link_directories(
 add_library(libmotioncapture
   src/motioncapture.cpp
   src/vicon.cpp
+  src/optitrack.cpp
 )
 
 ## Specify libraries to link a library or executable target against
@@ -100,3 +103,4 @@ target_link_libraries(libmotioncapture
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
