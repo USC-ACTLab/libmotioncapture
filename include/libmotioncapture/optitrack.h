@@ -15,7 +15,7 @@ namespace libmotioncapture {
         const std::string & version() const;
         
         virtual void waitForNextFrame();
-        //virtual void getObjects(std::vector<Object>& result) const;
+        virtual void getObjects(std::vector<Object>& result) const;
         //virtual void getObjectByName(const std::string & name, Object & result) const;
         
         virtual void getPointCloud(pcl::PointCloud<pcl::PointXYZ>::Ptr result) const;
