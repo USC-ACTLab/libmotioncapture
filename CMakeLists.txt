@@ -3,6 +3,10 @@ project(libmotioncapture)
 
 find_package(catkin)
 
+set(ENABLE_OPTITRACK True CACHE STRING "Enable Optitrack")
+set(ENABLE_VICON True CACHE STRING "Enable Vicon")
+set(ENABLE_PHASESPACE False CACHE STRING "Enable Phasespace")
+
 # Enable C++11
 # This requires PCL to be compiled with C++11 enabled as well!
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
@@ -24,37 +28,96 @@ catkin_package(
 )
 
 find_package(PCL REQUIRED)
-set(VICON_SDK_DIR externalDependencies/vicon_sdk/)
-set(NATNET_DIR externalDependencies/NatNetLinux/)
+set(VICON_SDK_DIR ${CMAKE_CURRENT_SOURCE_DIR}/externalDependencies/vicon_sdk/)
+set(NATNET_DIR ${CMAKE_CURRENT_SOURCE_DIR}/externalDependencies/NatNetLinux/)
+set(PHASESPACE_SDK_DIR ${CMAKE_CURRENT_SOURCE_DIR}/externalDependencies/phasespace_sdk/)
 
 ###########
 ## Build ##
 ###########
 
 ## Additional include folders
-include_directories(
+set(my_include_directories
   include
   ${PCL_INCLUDE_DIRS}
-  ${VICON_SDK_DIR}/include
-  ${NATNET_DIR}/include
+)
+set(my_link_directories)
+set(my_files
+  src/motioncapture.cpp
+)
+set(my_libraries
+  ${PCL_LIBRARIES}
+)
+
+if (ENABLE_VICON)
+  set(my_include_directories
+    ${my_include_directories}
+    ${VICON_SDK_DIR}/include
+  )
+  set(my_link_directories
+    ${my_link_directories}
+    ${VICON_SDK_DIR}/lib64
+  )
+  set(my_files
+    ${my_files}
+    src/vicon.cpp
+  )
+  set(my_libraries
+    ${my_libraries}
+    ViconDataStreamSDK_CPP
+  )
+endif()
+
+if (ENABLE_OPTITRACK)
+  set(my_include_directories
+    ${my_include_directories}
+    ${NATNET_DIR}/include
+  )
+  set(my_files
+    ${my_files}
+    src/optitrack.cpp
+  )
+endif()
+
+if (ENABLE_PHASESPACE)
+  set(my_include_directories
+    ${my_include_directories}
+    ${PHASESPACE_SDK_DIR}/include
+  )
+  set(my_link_directories
+    ${my_link_directories}
+    ${PHASESPACE_SDK_DIR}/lib64
+  )
+  set(my_files
+    ${my_files}
+    src/phasespace.cpp
+  )
+  set(my_libraries
+    ${my_libraries}
+    owlsock
+    OWL
+  )
+endif()
+
+
+include_directories(
+  ${my_include_directories}
 )
 
 link_directories(
-  ${VICON_SDK_DIR}/lib64
+  ${my_link_directories}
 )
 
 ## Declare a cpp library
 add_library(libmotioncapture
-  src/motioncapture.cpp
-  src/vicon.cpp
-  src/optitrack.cpp
+  ${my_files}
 )
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(libmotioncapture
-  ${PCL_LIBRARIES}
-  ViconDataStreamSDK_CPP
+  ${my_libraries}
 )
+set(LIBMOTIONCAPTURE_LINK_DIR ${my_link_directories} CACHE STRING "link directories for libmotioncapture")
 
 #############
 ## Install ##
