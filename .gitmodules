@@ -1,9 +1,3 @@
-[submodule "externalDependencies/vicon_sdk"]
-	path = externalDependencies/vicon_sdk
-	url = https://github.com/USC-ACTLab/vicon_sdk
 [submodule "externalDependencies/NatNetLinux"]
 	path = externalDependencies/NatNetLinux
 	url = https://github.com/naus3a/NatNetLinux
-[submodule "externalDependencies/phasespace_sdk"]
-	path = externalDependencies/phasespace_sdk
-	url = https://github.com/USC-ACTLab/phasespace_sdk.git
