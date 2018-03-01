@@ -1,3 +1,6 @@
 [submodule "externalDependencies/NatNetLinux"]
 	path = externalDependencies/NatNetLinux
 	url = https://github.com/naus3a/NatNetLinux
+[submodule "externalDependencies/Qualisys2Ros"]
+	path = externalDependencies/Qualisys2Ros
+	url = https://github.com/omwdunkley/Qualisys2Ros
