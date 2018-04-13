@@ -8,6 +8,40 @@ namespace libmotioncapture {
 
   class MotionCaptureOptitrackImpl{
   public:
+    void getObjectByRigidbody(
+      const RigidBody& rb,
+      Object& result) const
+      {
+        std::stringstream sstr;
+        sstr << rb.id();
+        const std::string name_number = sstr.str();
+        std::string name_cf = "cf";
+        const std::string name = name_cf + name_number;
+
+        auto const translation = rb.location();
+        auto const quaternion = rb.orientation();
+
+        if(rb.trackingValid()) {
+            Eigen::Vector3f position(
+              -translation.y,     
+              translation.x,
+              translation.z);
+
+            Eigen::Quaternionf rotation(
+              quaternion.qw,
+              -quaternion.qy,
+              quaternion.qx,
+              quaternion.qz
+              );
+
+            result = Object(name, position, rotation);
+
+        } else {
+            result = Object(name);
+        }
+      } 
+
+  public:
     NatNetClient client;
     std::string version;
     Point3f axisMultiplier;
@@ -49,43 +83,10 @@ namespace libmotioncapture {
       result.resize(count);
   
       for (size_t i = 0; i < count; ++i) {
-        getObjectByRigidbody(rBodies[i], result[i]);
+        pImpl->getObjectByRigidbody(rBodies[i], result[i]);
       }
     }
   }
-
-  void MotionCaptureOptitrack::getObjectByRigidbody(
-    const RigidBody& rb,
-    Object& result) const
-  {
-    std::stringstream sstr;
-    sstr << rb.id();
-    const std::string name_number = sstr.str();
-    std::string name_cf = "cf";
-    const std::string name = name_cf + name_number;
-    
-    auto const translation = rb.location();
-    auto const quaternion = rb.orientation();      
-
-    if(rb.trackingValid()) {
-        Eigen::Vector3f position(
-          -translation.y,     
-          translation.x,
-          translation.z);
-        
-        Eigen::Quaternionf rotation(
-          quaternion.qw,
-          -quaternion.qy,
-          quaternion.qx,
-          quaternion.qz
-          );
-
-        result = Object(name, position, rotation);          
-
-    } else {
-        result = Object(name);
-    }
-  } 
 
   void MotionCaptureOptitrack::getPointCloud(
     pcl::PointCloud<pcl::PointXYZ>::Ptr result) const

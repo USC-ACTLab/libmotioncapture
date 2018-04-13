@@ -1,6 +1,5 @@
 #pragma once
 #include "libmotioncapture/motioncapture.h"
-#include "NatNetLinux/NatNet.h"
 
 namespace libmotioncapture {
   class MotionCaptureOptitrackImpl;
@@ -18,9 +17,6 @@ namespace libmotioncapture {
     virtual void waitForNextFrame();
     virtual void getObjects(
       std::vector<Object>& result) const;
-    virtual void getObjectByRigidbody(
-      const RigidBody& rb,
-      Object& result) const;
 
     virtual void getPointCloud(
       pcl::PointCloud<pcl::PointXYZ>::Ptr result) const;
