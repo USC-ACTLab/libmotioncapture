@@ -110,7 +110,7 @@ namespace libmotioncapture {
     result.clear();
     std::string nn = "";
     double dd = pImpl->client.getLastFrame().latency();
-    result.emplace_back(libmotioncapture::LatencyInfo(nn, dd));
+    result.emplace_back(libmotioncapture::LatencyInfo(nn, dd/1000));
   }
 
   MotionCaptureOptitrack::~MotionCaptureOptitrack()
