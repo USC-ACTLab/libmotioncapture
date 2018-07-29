@@ -29,7 +29,7 @@ catkin_package(
 )
 
 find_package(PCL REQUIRED)
-set(VICON_SDK_DIR ${CMAKE_CURRENT_SOURCE_DIR}/externalDependencies/vicon_sdk/)
+set(VICON_SDK_DIR ${CMAKE_CURRENT_SOURCE_DIR}/externalDependencies/vicon-datastream-sdk/)
 set(NATNET_DIR ${CMAKE_CURRENT_SOURCE_DIR}/externalDependencies/NatNetLinux/)
 set(PHASESPACE_SDK_DIR ${CMAKE_CURRENT_SOURCE_DIR}/externalDependencies/phasespace_sdk/)
 set(QUALISYS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/externalDependencies/Qualisys2Ros/include/)
@@ -52,13 +52,10 @@ set(my_libraries
 )
 
 if (ENABLE_VICON)
+  add_subdirectory(externalDependencies/vicon-datastream-sdk)
   set(my_include_directories
     ${my_include_directories}
-    ${VICON_SDK_DIR}/include
-  )
-  set(my_link_directories
-    ${my_link_directories}
-    ${VICON_SDK_DIR}/lib64
+    ${VICON_SDK_DIR}/Vicon/CrossMarket/DataStream
   )
   set(my_files
     ${my_files}

@@ -1,7 +1,7 @@
 #include "libmotioncapture/vicon.h"
 
 // VICON
-#include "vicon_sdk/DataStreamClient.h"
+#include "ViconDataStreamSDK_CPP/DataStreamClient.h"
 
 using namespace ViconDataStreamSDK::CPP;
 
