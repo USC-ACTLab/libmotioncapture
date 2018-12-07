@@ -1,0 +1,149 @@
+#include "libmotioncapture/vrpn.h"
+
+#include <unordered_map>
+#include <unordered_set>
+#include <iostream>
+#include <thread>
+
+// VRPN
+#include <vrpn_Tracker.h>
+#include <vrpn_Connection.h>
+
+namespace
+{
+  std::unordered_set<std::string> name_blacklist_({"VRPN Control"});
+}
+
+namespace libmotioncapture {
+
+  class MotionCaptureVrpnImpl
+  {
+  public:
+    static MotionCaptureVrpnImpl* instance;
+    std::shared_ptr<vrpn_Connection> connection;
+    std::unordered_map<std::string, std::shared_ptr<vrpn_Tracker_Remote> > trackers;
+    std::unordered_map<std::string, vrpn_TRACKERCB> trackerData;
+
+    void updateTrackers()
+    {
+      const char* name = nullptr;
+      for (int i = 0; (name = connection->sender_name(i)) != NULL; ++i) {
+        if (trackers.count(name) == 0 && name_blacklist_.count(name) == 0)
+        {
+          std::cerr << "tracker: " << name << std::endl;
+          trackers.insert(std::make_pair(name,
+            std::make_shared<vrpn_Tracker_Remote>(name, connection.get())));
+
+          trackers[name]->register_change_handler((void*)name, &MotionCaptureVrpnImpl::handle_pose);
+        }
+      }
+    }
+
+    static void VRPN_CALLBACK handle_pose(void *userData, const vrpn_TRACKERCB tracker_pose)
+    {
+      // std::cerr << "pos " << (const char*)userData << tracker_pose.pos[0] << std::endl;
+      std::string name((const char*)userData);
+      instance->trackerData[name] = tracker_pose;
+    }
+  };
+
+ MotionCaptureVrpnImpl*  MotionCaptureVrpnImpl::instance;
+
+  MotionCaptureVrpn::MotionCaptureVrpn(
+    const std::string& hostname)
+  {
+    pImpl = new MotionCaptureVrpnImpl;
+    pImpl->instance = pImpl;
+
+    pImpl->connection = std::shared_ptr<vrpn_Connection>(vrpn_get_connection_by_name(hostname.c_str()));
+  }
+
+  MotionCaptureVrpn::~MotionCaptureVrpn()
+  {
+    delete pImpl;
+  }
+
+  void MotionCaptureVrpn::waitForNextFrame()
+  {
+    pImpl->updateTrackers();
+    pImpl->trackerData.clear();
+    do {
+      pImpl->connection->mainloop();
+      for (auto tracker : pImpl->trackers) {
+        tracker.second->mainloop();
+      }
+      std::this_thread::sleep_for(std::chrono::microseconds(1));
+    } while(pImpl->trackerData.size() < pImpl->trackers.size());
+  }
+
+  void MotionCaptureVrpn::getObjects(
+    std::vector<Object>& result) const
+  {
+    result.clear();
+    for (const auto& data : pImpl->trackerData) {
+      Eigen::Vector3f position(
+        data.second.pos[0],
+        data.second.pos[1],
+        data.second.pos[2]);
+
+      Eigen::Quaternionf rotation(
+        data.second.quat[3], // w
+        data.second.quat[0], // x
+        data.second.quat[1], // y
+        data.second.quat[2]  // z
+        );
+
+      result.push_back(Object(data.first, position, rotation));
+    }
+  }
+
+  void MotionCaptureVrpn::getObjectByName(
+    const std::string& name,
+    Object& result) const
+  {
+    const auto data = pImpl->trackerData.find(name);
+    if (data != pImpl->trackerData.end()) {
+
+      Eigen::Vector3f position(
+        data->second.pos[0],
+        data->second.pos[1],
+        data->second.pos[2]);
+
+      Eigen::Quaternionf rotation(
+        data->second.quat[3], // w
+        data->second.quat[0], // x
+        data->second.quat[1], // y
+        data->second.quat[2]  // z
+        );
+
+      result = Object(name, position, rotation);
+    }
+  }
+
+  void MotionCaptureVrpn::getPointCloud(
+    pcl::PointCloud<pcl::PointXYZ>::Ptr result) const
+  {
+    result->clear();
+  }
+
+  void MotionCaptureVrpn::getLatency(
+    std::vector<LatencyInfo>& result) const
+  {
+    result.clear();
+  }
+
+  bool MotionCaptureVrpn::supportsObjectTracking() const
+  {
+    return true;
+  }
+
+  bool MotionCaptureVrpn::supportsLatencyEstimate() const
+  {
+    return false;
+  }
+
+  bool MotionCaptureVrpn::supportsPointCloud() const
+  {
+    return false;
+  }
+}

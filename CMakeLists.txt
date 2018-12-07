@@ -7,6 +7,7 @@ set(ENABLE_QUALISYS True CACHE STRING "Enable Qualisys")
 set(ENABLE_OPTITRACK True CACHE STRING "Enable Optitrack")
 set(ENABLE_VICON True CACHE STRING "Enable Vicon")
 set(ENABLE_PHASESPACE False CACHE STRING "Enable Phasespace")
+set(ENABLE_VRPN True CACHE STRING "Enable VRPN")
 
 # Enable C++11
 # This requires PCL to be compiled with C++11 enabled as well!
@@ -110,6 +111,22 @@ if (ENABLE_QUALISYS)
     ${QUALISYS_DIR}/RTPacket.cpp
     ${QUALISYS_DIR}/RTProtocol.cpp
     src/qualisys.cpp
+  )
+endif()
+
+if (ENABLE_VRPN)
+  find_package(VRPN REQUIRED)
+  set(my_include_directories
+    ${my_include_directories}
+    ${VRPN_INCLUDE_DIR}
+  )
+  set(my_files
+    ${my_files}
+    src/vrpn.cpp
+  )
+  set(my_libraries
+    ${my_libraries}
+    ${VRPN_LIBRARIES}
   )
 endif()
 
