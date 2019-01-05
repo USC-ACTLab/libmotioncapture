@@ -23,6 +23,7 @@ namespace libmotioncapture {
     std::shared_ptr<vrpn_Connection> connection;
     std::unordered_map<std::string, std::shared_ptr<vrpn_Tracker_Remote> > trackers;
     std::unordered_map<std::string, vrpn_TRACKERCB> trackerData;
+    int updateFrequency;
 
     void updateTrackers()
     {
@@ -50,10 +51,12 @@ namespace libmotioncapture {
  MotionCaptureVrpnImpl*  MotionCaptureVrpnImpl::instance;
 
   MotionCaptureVrpn::MotionCaptureVrpn(
-    const std::string& hostname)
+    const std::string& hostname,
+    int updateFrequency)
   {
     pImpl = new MotionCaptureVrpnImpl;
     pImpl->instance = pImpl;
+    pImpl->updateFrequency = updateFrequency;
 
     pImpl->connection = std::shared_ptr<vrpn_Connection>(vrpn_get_connection_by_name(hostname.c_str()));
   }
@@ -65,15 +68,31 @@ namespace libmotioncapture {
 
   void MotionCaptureVrpn::waitForNextFrame()
   {
+    // We use a fixed update frequency here, because VRPN is stateless
+    // with respect to the active trackers. Since users might enable/disable
+    // trackers at any time, this approach keeps the active trackers updated.
+    // Disadvantage: higher latency, since we do not attempt to synchronize
+
+    static auto lastTime = std::chrono::high_resolution_clock::now();
+
+    auto now = std::chrono::high_resolution_clock::now();
+    auto elapsed = now - lastTime;
+    auto desiredPeriod = std::chrono::milliseconds(1000 / pImpl->updateFrequency);
+    if (elapsed < desiredPeriod) {
+      std::this_thread::sleep_for(desiredPeriod - elapsed);
+    }
+
+
     pImpl->updateTrackers();
     pImpl->trackerData.clear();
-    do {
+    // do {
       pImpl->connection->mainloop();
       for (auto tracker : pImpl->trackers) {
         tracker.second->mainloop();
       }
-      std::this_thread::sleep_for(std::chrono::microseconds(1));
-    } while(pImpl->trackerData.size() < pImpl->trackers.size());
+      // std::this_thread::sleep_for(std::chrono::microseconds(1));
+    // } while(pImpl->trackerData.size() < pImpl->trackers.size());
+      lastTime = now;
   }
 
   void MotionCaptureVrpn::getObjects(
