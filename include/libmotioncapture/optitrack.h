@@ -7,8 +7,7 @@ namespace libmotioncapture {
   class MotionCaptureOptitrack : public MotionCapture{
   public:
     MotionCaptureOptitrack(
-      const std::string& localIp,
-      const std::string& serverIp);
+      const std::string& hostname);
 
     virtual ~MotionCaptureOptitrack();
 
