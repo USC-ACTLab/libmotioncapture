@@ -318,11 +318,14 @@ namespace libmotioncapture {
 
   void MotionCaptureOptitrack::waitForNextFrame()
   {
-    pImpl->data.resize(20000);
-    size_t length = pImpl->socket.receive_from(boost::asio::buffer(pImpl->data.data(), pImpl->data.size()), pImpl->sender_endpoint);
-    pImpl->data.resize(length);
+    // use a loop to get latest data
+    do {
+      pImpl->data.resize(20000);
+      size_t length = pImpl->socket.receive_from(boost::asio::buffer(pImpl->data.data(), pImpl->data.size()), pImpl->sender_endpoint);
+      pImpl->data.resize(length);
+    } while (pImpl->socket.available() > 0);
 
-    if (length > 4) {
+    if (pImpl->data.size() > 4) {
       char *ptr = pImpl->data.data();
       int major = pImpl->versionMajor;
       int minor = pImpl->versionMinor;
