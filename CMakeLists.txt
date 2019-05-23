@@ -47,6 +47,7 @@ set(my_include_directories
 set(my_link_directories)
 set(my_files
   src/motioncapture.cpp
+  src/testmocap.cpp
 )
 set(my_libraries
   ${PCL_LIBRARIES}
