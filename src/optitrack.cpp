@@ -1,6 +1,9 @@
 #include "libmotioncapture/optitrack.h"
 
 #include <boost/asio.hpp>
+#include <iomanip>
+#include <string>
+#include <inttypes.h>
 
 using boost::asio::ip::udp;
 
@@ -44,7 +47,7 @@ namespace libmotioncapture {
 
     //     if(rb.trackingValid()) {
     //         Eigen::Vector3f position(
-    //           -translation.y,     
+    //           -translation.y,
     //           translation.x,
     //           translation.z);
 
@@ -60,7 +63,7 @@ namespace libmotioncapture {
     //     } else {
     //         result = Object(name);
     //     }
-    //   } 
+    //   }
 
     void parseModelDef(const char* data)
     {
@@ -120,7 +123,7 @@ namespace libmotioncapture {
 
             rigidBodyDefinitions[ID].name = szName;
             rigidBodyDefinitions[ID].ID = ID;
-         
+
             memcpy(&rigidBodyDefinitions[ID].parentID, ptr, 4); ptr +=4;
             memcpy(&rigidBodyDefinitions[ID].xoffset, ptr, 4); ptr +=4;
             memcpy(&rigidBodyDefinitions[ID].yoffset, ptr, 4); ptr +=4;
@@ -325,6 +328,9 @@ namespace libmotioncapture {
       pImpl->data.resize(length);
     } while (pImpl->socket.available() > 0);
 
+    // clear the vector of markers.
+    pImpl->markers.clear();
+
     if (pImpl->data.size() > 4) {
       char *ptr = pImpl->data.data();
       int major = pImpl->versionMajor;
@@ -345,7 +351,7 @@ namespace libmotioncapture {
         // Next 4 Bytes is the frame number
         int frameNumber = 0; memcpy(&frameNumber, ptr, 4); ptr += 4;
         // printf("Frame # : %d\n", frameNumber);
-      
+
         // Next 4 Bytes is the number of data sets (markersets, rigidbodies, etc)
         int nMarkerSets = 0; memcpy(&nMarkerSets, ptr, 4); ptr += 4;
         // printf("Marker Set Count : %d\n", nMarkerSets);
@@ -353,15 +359,36 @@ namespace libmotioncapture {
         // Loop through number of marker sets and get name and data
         for (int i=0; i < nMarkerSets; i++)
         {
-          ptr += strlen(ptr) + 1;
-          ptr += 12;
+          //std::string marker_name(ptr);
+          //std::cout << "marker name: " << marker_name << std::endl;
+          size_t len = strlen(ptr);
+          ptr += len + 1;
+          int nMarkers = 0;
+          memcpy(&nMarkers, ptr, 4);
+          ptr += 4;
+          // printf("Number of markers in set: %d\n", nMarkers);
+          for(int k=0; k < nMarkers; k++)
+          {
+            MotionCaptureOptitrackImpl::marker marker_pos;
+            memcpy(&marker_pos, ptr, 12);
+            ptr += 12;
+            // printf("MarkerData: %f, %f; %f\n", marker_pos.x, marker_pos.y, marker_pos.z);
+            pImpl->markers.push_back(marker_pos);
+          }
         }
 
         // Loop through unlabeled markers
         // OtherMarker list is Deprecated
         int nOtherMarkers = 0; memcpy(&nOtherMarkers, ptr, 4); ptr += 4;
         // printf("Unidentified Marker Count : %d\n", nOtherMarkers);
-        ptr += nOtherMarkers * 12;
+        for(int k=0; k < nOtherMarkers; k++)
+        {
+          MotionCaptureOptitrackImpl::marker marker_pos;
+          memcpy(&marker_pos, ptr, 12);
+          ptr += 12;
+          // printf("Unidentified MarkerData: %f, %f; %f\n", marker_pos.x, marker_pos.y, marker_pos.z);
+          pImpl->markers.push_back(marker_pos);
+        }
 
         // Loop through rigidbodies
         int nRigidBodies = 0; memcpy(&nRigidBodies, ptr, 4); ptr += 4;
@@ -369,7 +396,7 @@ namespace libmotioncapture {
         // printf("Rigid Body Count : %d\n", nRigidBodies);
         for (int j=0; j < nRigidBodies; j++)
         {
-          // Rigid body position and orientation 
+          // Rigid body position and orientation
           memcpy(&pImpl->rigidBodies[j].ID, ptr, 4); ptr += 4;
           memcpy(&pImpl->rigidBodies[j].x, ptr, 4); ptr += 4;
           memcpy(&pImpl->rigidBodies[j].y, ptr, 4); ptr += 4;
@@ -387,7 +414,7 @@ namespace libmotioncapture {
           }
 
           // NatNet version 2.6 and later
-          if( ((major == 2)&&(minor >= 6)) || (major > 2) || (major == 0) ) 
+          if( ((major == 2)&&(minor >= 6)) || (major > 2) || (major == 0) )
           {
             // params
             short params = 0; memcpy(&params, ptr, 2); ptr += 2;
@@ -428,21 +455,20 @@ namespace libmotioncapture {
               }
 
               // Tracking flags (NatNet version 2.6 and later)
-              if( ((major == 2)&&(minor >= 6)) || (major > 2) || (major == 0) ) 
+              if( ((major == 2)&&(minor >= 6)) || (major > 2) || (major == 0) )
               {
                 ptr += 2;
               }
             } // next rigid body
           } // next skeleton
         }
-        
+
         // labeled markers (NatNet version 2.3 and later)
         // labeled markers - this includes all markers: Active, Passive, and 'unlabeled' (markers with no asset but a PointCloud ID)
         if( ((major == 2)&&(minor>=3)) || (major>2))
         {
           int nLabeledMarkers = 0;
           memcpy(&nLabeledMarkers, ptr, 4); ptr += 4;
-          pImpl->markers.resize(nLabeledMarkers);
           // printf("Labeled Marker Count : %d\n", nLabeledMarkers);
 
           // Loop through labeled markers
@@ -452,7 +478,7 @@ namespace libmotioncapture {
             // Marker ID Scheme:
             // Active Markers:
             //   ID = ActiveID, correlates to RB ActiveLabels list
-            // Passive Markers: 
+            // Passive Markers:
             //   If Asset with Legacy Labels
             //      AssetID   (Hi Word)
             //      MemberID  (Lo Word)
@@ -462,16 +488,17 @@ namespace libmotioncapture {
             ptr += 4;
             // int modelID, markerID;
             // DecodeMarkerID(ID, &modelID, &markerID);
-
-            memcpy(&pImpl->markers[j].x, ptr, 4); ptr += 4;
-            memcpy(&pImpl->markers[j].y, ptr, 4); ptr += 4;
-            memcpy(&pImpl->markers[j].z, ptr, 4); ptr += 4;
+            MotionCaptureOptitrackImpl::marker marker_pos;
+            memcpy(&marker_pos, ptr, 12);
+            ptr += 12;
+            // printf("MarkerData: %f, %f; %f\n", marker_pos.x, marker_pos.y, marker_pos.z);
+            pImpl->markers.push_back(marker_pos);
             // size
             //float size = 0.0f; memcpy(&size, ptr, 4);
             ptr += 4;
 
             // NatNet version 2.6 and later
-            if( ((major == 2)&&(minor >= 6)) || (major > 2) || (major == 0) ) 
+            if( ((major == 2)&&(minor >= 6)) || (major > 2) || (major == 0) )
             {
               // marker params
               // short params = 0; memcpy(&params, ptr, 2);
@@ -551,7 +578,7 @@ namespace libmotioncapture {
               int nFrames = 0; memcpy(&nFrames, ptr, 4); ptr += 4;
               for (int j = 0; j < nFrames; j++)
               {
-                  // float val = 0.0f;  memcpy(&val, ptr, 4); 
+                  // float val = 0.0f;  memcpy(&val, ptr, 4);
                   ptr += 4;
                   // printf("%3.2f   ", val);
               }
@@ -559,7 +586,7 @@ namespace libmotioncapture {
             }
           }
         }
-    
+
         // software latency (removed in version 3.0)
         if ( major < 3 )
         {
@@ -691,4 +718,3 @@ namespace libmotioncapture {
     return true;
   }
 }
-
