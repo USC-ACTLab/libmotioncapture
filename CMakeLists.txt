@@ -33,7 +33,7 @@ find_package(PCL REQUIRED)
 set(VICON_SDK_DIR ${CMAKE_CURRENT_SOURCE_DIR}/externalDependencies/vicon-datastream-sdk/)
 set(NATNET_DIR ${CMAKE_CURRENT_SOURCE_DIR}/externalDependencies/NatNetLinux/)
 set(PHASESPACE_SDK_DIR ${CMAKE_CURRENT_SOURCE_DIR}/externalDependencies/phasespace_sdk/)
-set(QUALISYS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/externalDependencies/Qualisys2Ros/include/)
+set(QUALISYS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/externalDependencies/qualisys_cpp_sdk/)
 
 ###########
 ## Build ##
@@ -101,17 +101,18 @@ if (ENABLE_PHASESPACE)
 endif()
 
 if (ENABLE_QUALISYS)
+  add_subdirectory(externalDependencies/qualisys_cpp_sdk)
   set(my_include_directories
     ${my_include_directories}
     ${QUALISYS_DIR}
   )
   set(my_files
     ${my_files}
-    ${QUALISYS_DIR}/NBC_Markup.cpp
-    ${QUALISYS_DIR}/Network.cpp
-    ${QUALISYS_DIR}/RTPacket.cpp
-    ${QUALISYS_DIR}/RTProtocol.cpp
     src/qualisys.cpp
+  )
+  set(my_libraries
+    ${my_libraries}
+    qualisys_cpp_sdk
   )
 endif()
 

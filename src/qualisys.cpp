@@ -13,7 +13,7 @@ namespace libmotioncapture {
   public:
     CRTProtocol poRTProtocol;
     CRTPacket*  pRTPacket;
-    CRTProtocol::EComponentType componentType;
+    CRTPacket::EComponentType componentType;
     std::string version;
   };
 
@@ -34,22 +34,23 @@ namespace libmotioncapture {
     pImpl->pRTPacket = pImpl->poRTProtocol.GetRTPacket();
 
     // Setting component flag
-    pImpl->componentType = static_cast<CRTProtocol::EComponentType>(0);
+    pImpl->componentType = static_cast<CRTPacket::EComponentType>(0);
     if (enableObjects) {
-      pImpl->componentType = static_cast<CRTProtocol::EComponentType>(pImpl->componentType | CRTProtocol::Component6dEuler);
+      pImpl->componentType = static_cast<CRTPacket::EComponentType>(pImpl->componentType | CRTPacket::Component6dEuler);
     }
     if (enablePointcloud) {
-      pImpl->componentType = static_cast<CRTProtocol::EComponentType>(pImpl->componentType | CRTProtocol::Component3dNoLabels);
+      pImpl->componentType = static_cast<CRTPacket::EComponentType>(pImpl->componentType | CRTPacket::Component3dNoLabels);
     }
 
     // Get 6DOF settings
-    pImpl->poRTProtocol.Read6DOFSettings();
+    bool dataAvailable;
+    pImpl->poRTProtocol.Read6DOFSettings(dataAvailable);
 
     // TODO: enable UDP streaming of selected component for lower latency?
 
     // Getting version
     char qtmVersion[255];
-    int major, minor;
+    unsigned int major, minor;
     pImpl->poRTProtocol.GetQTMVersion(qtmVersion, 255);
     pImpl->poRTProtocol.GetVersion(major, minor);
     std::stringstream sstr;
