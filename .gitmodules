@@ -1,6 +1,3 @@
-[submodule "externalDependencies/Qualisys2Ros"]
-	path = externalDependencies/Qualisys2Ros
-	url = https://github.com/omwdunkley/Qualisys2Ros
 [submodule "externalDependencies/vicon-datastream-sdk"]
 	path = externalDependencies/vicon-datastream-sdk
 	url = https://github.com/whoenig/vicon-datastream-sdk.git
