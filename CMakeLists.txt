@@ -7,7 +7,7 @@ set(ENABLE_QUALISYS True CACHE STRING "Enable Qualisys")
 set(ENABLE_OPTITRACK True CACHE STRING "Enable Optitrack")
 set(ENABLE_VICON True CACHE STRING "Enable Vicon")
 set(ENABLE_PHASESPACE False CACHE STRING "Enable Phasespace")
-set(ENABLE_VRPN True CACHE STRING "Enable VRPN")
+set(ENABLE_VRPN False CACHE STRING "Enable VRPN")
 
 # Enable C++11
 # This requires PCL to be compiled with C++11 enabled as well!
