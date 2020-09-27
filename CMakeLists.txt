@@ -9,9 +9,8 @@ set(ENABLE_VICON True CACHE STRING "Enable Vicon")
 set(ENABLE_PHASESPACE False CACHE STRING "Enable Phasespace")
 set(ENABLE_VRPN False CACHE STRING "Enable VRPN")
 
-# Enable C++11
-# This requires PCL to be compiled with C++11 enabled as well!
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set (CMAKE_CXX_STANDARD 11)
+set (CMAKE_CXX_STANDARD_REQUIRED ON)
 
 ###################################
 ## catkin specific configuration ##
