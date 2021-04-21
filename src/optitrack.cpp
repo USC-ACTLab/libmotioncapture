@@ -354,7 +354,7 @@ namespace libmotioncapture {
         for (int i=0; i < nMarkerSets; i++)
         {
           ptr += strlen(ptr) + 1;
-          ptr += 12;
+          ptr += (*ptr * 12) + 4;
         }
 
         // Loop through unlabeled markers
