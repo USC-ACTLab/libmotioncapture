@@ -354,7 +354,11 @@ namespace libmotioncapture {
         for (int i=0; i < nMarkerSets; i++)
         {
           ptr += strlen(ptr) + 1;
-          ptr += (*ptr * 12) + 4;
+          int nMarkers = 0; memcpy(&nMarkers, ptr, 4); ptr += 4;
+          for(int j=0; j < nMarkers; j++)
+          {
+            ptr += 12;
+          }
         }
 
         // Loop through unlabeled markers
