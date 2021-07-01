@@ -1,3 +1,5 @@
+[![CMake](https://github.com/USC-ACTLab/libmotioncapture/actions/workflows/cmake.yml/badge.svg?branch=master)](https://github.com/USC-ACTLab/libmotioncapture/actions/workflows/cmake.yml)
+
 # libmotioncapture
 Interface Abstraction for Motion Capture System APIs such as VICON, OptiTrack, PhaseSpace, or Qualisys.
 
