@@ -671,6 +671,11 @@ namespace libmotioncapture {
     result.clear();
   }
 
+  uint64_t MotionCaptureOptitrack::getTimeStamp() const
+  {
+    return 0;
+  }
+
   MotionCaptureOptitrack::~MotionCaptureOptitrack()
   {
     delete pImpl;
@@ -689,6 +694,11 @@ namespace libmotioncapture {
   bool MotionCaptureOptitrack::supportsPointCloud() const
   {
     return true;
+  }
+
+  bool MotionCaptureOptitrack::supportsTimeStamp() const
+  {
+    return false;
   }
 }
 

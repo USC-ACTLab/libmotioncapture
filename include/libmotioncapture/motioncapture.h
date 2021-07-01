@@ -115,6 +115,9 @@ namespace libmotioncapture {
     virtual void getLatency(
       std::vector<LatencyInfo>& result) const = 0;
 
+    // returns timestamp in microseconds
+    virtual uint64_t getTimeStamp() const = 0;
+
     // Query API capabilities
 
     // return true, if tracking of objects is supported
@@ -123,6 +126,8 @@ namespace libmotioncapture {
     virtual bool supportsLatencyEstimate() const = 0;
     // returns true if raw point cloud is available
     virtual bool supportsPointCloud() const = 0;
+    // returns true if timestamp is available
+    virtual bool supportsTimeStamp() const = 0;
   };
 
 } // namespace libobjecttracker

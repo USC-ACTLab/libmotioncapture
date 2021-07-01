@@ -198,6 +198,11 @@ namespace libmotioncapture {
     result.clear();
   }
 
+  uint64_t MotionCapturePhasespace::getTimeStamp() const
+  {
+    return 0;
+  }
+
   bool MotionCapturePhasespace::supportsObjectTracking() const
   {
     return true;
@@ -211,5 +216,10 @@ namespace libmotioncapture {
   bool MotionCapturePhasespace::supportsPointCloud() const
   {
     return true;
+  }
+
+  bool MotionCapturePhasespace::supportsTimeStamp() const
+  {
+    return false;
   }
 }

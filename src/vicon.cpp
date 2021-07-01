@@ -132,6 +132,11 @@ namespace libmotioncapture {
     }
   }
 
+  uint64_t MotionCaptureVicon::getTimeStamp() const
+  {
+    return 0;
+  }
+
   bool MotionCaptureVicon::supportsObjectTracking() const
   {
     return true;
@@ -145,5 +150,10 @@ namespace libmotioncapture {
   bool MotionCaptureVicon::supportsPointCloud() const
   {
     return true;
+  }
+
+  bool MotionCaptureVicon::supportsTimeStamp() const
+  {
+    return false;
   }
 }

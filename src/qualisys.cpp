@@ -165,6 +165,11 @@ namespace libmotioncapture {
     result.clear();
   }
 
+  uint64_t MotionCaptureQualisys::getTimeStamp() const
+  {
+    return pImpl->pRTPacket->GetTimeStamp();
+  }
+
   bool MotionCaptureQualisys::supportsObjectTracking() const
   {
     return true;
@@ -176,6 +181,11 @@ namespace libmotioncapture {
   }
 
   bool MotionCaptureQualisys::supportsPointCloud() const
+  {
+    return true;
+  }
+
+  bool MotionCaptureQualisys::supportsTimeStamp() const
   {
     return true;
   }

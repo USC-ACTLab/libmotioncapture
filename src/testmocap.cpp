@@ -52,6 +52,11 @@ namespace libmotioncapture {
     result.clear();
   }
 
+  uint64_t MotionCaptureTest::getTimeStamp() const
+  {
+    return 0;
+  }
+
   MotionCaptureTest::~MotionCaptureTest()
   {
     delete pImpl;
@@ -70,6 +75,11 @@ namespace libmotioncapture {
   bool MotionCaptureTest::supportsPointCloud() const
   {
     return true;
+  }
+
+  bool MotionCaptureTest::supportsTimeStamp() const
+  {
+    return false;
   }
 }
 

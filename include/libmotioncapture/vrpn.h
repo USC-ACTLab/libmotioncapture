@@ -25,10 +25,12 @@ namespace libmotioncapture {
       pcl::PointCloud<pcl::PointXYZ>::Ptr result) const;
     virtual void getLatency(
       std::vector<LatencyInfo>& result) const;
+    virtual uint64_t getTimeStamp() const;
 
     virtual bool supportsObjectTracking() const;
     virtual bool supportsLatencyEstimate() const;
     virtual bool supportsPointCloud() const;
+    virtual bool supportsTimeStamp() const;
 
   private:
     MotionCaptureVrpnImpl* pImpl;

@@ -151,6 +151,11 @@ namespace libmotioncapture {
     result.clear();
   }
 
+  uint64_t MotionCaptureVrpn::getTimeStamp() const
+  {
+    return 0;
+  }
+
   bool MotionCaptureVrpn::supportsObjectTracking() const
   {
     return true;
@@ -162,6 +167,11 @@ namespace libmotioncapture {
   }
 
   bool MotionCaptureVrpn::supportsPointCloud() const
+  {
+    return false;
+  }
+
+  bool MotionCaptureVrpn::supportsTimeStamp() const
   {
     return false;
   }
